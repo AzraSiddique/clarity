@@ -34,7 +34,9 @@ if (process.env.NODE_ENV === "production") {
 
 app.listen(PORT, () => {
   console.log(`[clarity] Server running on port ${PORT}`);
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn("[clarity] WARNING: GEMINI_API_KEY is not set.");
+  if (!process.env.GROQ_API_KEY) {
+    console.warn("[clarity] WARNING: GROQ_API_KEY is not set. Check your .env file.");
+  } else {
+    console.log("[clarity] Groq API key loaded OK.");
   }
 });

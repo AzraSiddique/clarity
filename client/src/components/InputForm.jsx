@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const MAX_CHARS = 800;
+const MAX_CHARS = 2000;
 
 export default function InputForm({ onSubmit, loading }) {
   const [text, setText] = useState("");

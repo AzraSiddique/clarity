@@ -73,7 +73,6 @@ export default function App() {
     <div className="app">
       <main className="container">
         <header className="header">
-          <div className="logo">✦</div>
           <h1 className="headline">Turn Overthinking Into<br />One Clear Step.</h1>
           <p className="subtext">Describe what's on your mind. Get clarity in seconds.</p>
         </header>

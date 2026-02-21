@@ -1,7 +1,7 @@
 {
   "name": "clarity-server",
   "version": "1.0.0",
-  "description": "Clarity backend",
+  "description": "Clarity — backend API server",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
@@ -9,10 +9,10 @@
     "build:client": "cd client && npm install && npm run build"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-rate-limit": "^7.4.0"
+    "express-rate-limit": "^7.4.0",
+    "groq-sdk": "^0.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

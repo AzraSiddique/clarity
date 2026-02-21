@@ -1,18 +1,17 @@
 const express = require("express");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 const { isCrisisInput } = require("../utils/safetyCheck");
 const { buildPrompt } = require("../utils/promptBuilder");
 
 const router = express.Router();
 
-// Check the key exists at startup so you know immediately if it's missing
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.GROQ_API_KEY;
 if (!API_KEY) {
-  console.error("[clarity] FATAL: GEMINI_API_KEY is not set in your .env file");
+  console.error("[clarity] FATAL: GROQ_API_KEY is not set in your .env file");
 }
 
-const genAI = new GoogleGenerativeAI(API_KEY);
-const API_TIMEOUT_MS = 15000; // 15 seconds — gemini-2.0-flash can be slow on free tier
+const groq = new Groq({ apiKey: API_KEY });
+const API_TIMEOUT_MS = 20000;
 
 const FALLBACK_CLARITY = {
   summary: "Something is weighing on you and it feels hard to see a path forward right now.",
@@ -33,11 +32,14 @@ function parseResponse(text) {
     return line.slice(label.length + 1).trim();
   };
 
-  return {
+  const result = {
     summary:  get("Summary")   || "Couldn't parse summary.",
-    nextStep: get("Next Step")  || "Take one small step today.",
-    reframe:  get("Reframe")   || null,
+    nextStep: get("Next Step") || "Take one small step today.",
+    reframe:  get("Reframe")  || null,
   };
+
+  console.log("[clarity] Parsed result:", result);
+  return result;
 }
 
 router.post("/", async (req, res) => {
@@ -59,42 +61,41 @@ router.post("/", async (req, res) => {
 
   const { system, userMessage } = buildPrompt(trimmed);
 
-  console.log("[clarity] Calling Gemini API...");
+  console.log("[clarity] Calling Groq API...");
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      systemInstruction: system,
-    });
-
-    const response = await Promise.race([
-      model.generateContent(userMessage),
+    const completion = await Promise.race([
+      groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: system },
+          { role: "user",   content: userMessage },
+        ],
+        max_tokens: 200,
+        temperature: 0.9,
+      }),
       new Promise((_, reject) =>
         setTimeout(() => reject(new Error("TIMEOUT")), API_TIMEOUT_MS)
       ),
     ]);
 
-    const rawText = response.response.text();
+    const rawText = completion.choices[0]?.message?.content || "";
     const parsed = parseResponse(rawText);
 
-    console.log("[clarity] Parsed result:", parsed);
     return res.status(200).json(parsed);
 
   } catch (err) {
     console.error("[clarity] ===== API ERROR =====");
     console.error("[clarity] Message:", err.message);
-    console.error("[clarity] Status:", err.status);
-    console.error("[clarity] Full error:", JSON.stringify(err, null, 2));
     console.error("[clarity] ======================");
 
     if (err.message === "TIMEOUT") {
-      console.warn("[clarity] Request timed out after 15s");
+      console.warn("[clarity] Timed out — serving fallback");
       return res.status(200).json({ ...FALLBACK_CLARITY, _fallback: true });
     }
 
-    return res.status(502).json({
-      error: `API error: ${err.message}`,
-    });
+    console.warn("[clarity] API error — serving fallback. Error:", err.message);
+    return res.status(200).json({ ...FALLBACK_CLARITY, _fallback: true });
   }
 });
 
