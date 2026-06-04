@@ -3,17 +3,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #F7F5F1;
+  --bg:        #F0F4F0;
   --surface:   #FFFFFF;
-  --ink:       #1A1916;
-  --ink-muted: #6B6860;
-  --ink-faint: #B5B2AC;
-  --accent:    #2D5BE3;
-  --border:    #E4E1DA;
+  --ink:       #1C2B1E;
+  --ink-muted: #5A6B5C;
+  --ink-faint: #9EAD9F;
+  --accent:    #2D6A4F;
+  --border:    #D4E0D5;
   --radius:    12px;
   --shadow:    0 2px 12px rgba(0,0,0,0.06);
-  --font-head: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-head: 'Fraunces', Georgia, serif;
+  --font-body: 'Jost', system-ui, sans-serif;
   --max-w:     600px;
   --space:     clamp(1.5rem, 4vw, 3rem);
 }
@@ -96,7 +96,7 @@ body {
 }
 
 .textarea::placeholder { color: var(--ink-faint); }
-.textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,91,227,0.08); }
+.textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15); }
 .textarea:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .char-count {
